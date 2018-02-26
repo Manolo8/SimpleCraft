@@ -1,0 +1,11 @@
+author: Manolo8
+main: com.github.manolo8.simplecraft.SimpleCraft
+name: SimpleCraft
+version: 1.0
+commands:
+  money:
+    usage: test
+  pay:
+    usage: test
+  group:
+    usage: test
