@@ -1,7 +1,7 @@
 package com.github.manolo8.simplecraft.cache;
 
 import com.github.manolo8.simplecraft.exception.CacheReferenceWrong;
-import com.github.manolo8.simplecraft.model.BaseEntity;
+import com.github.manolo8.simplecraft.data.model.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,8 +32,17 @@ public class Cache<T extends BaseEntity> {
 
     public void add(T t) {
         if (t.getReferences() != null) throw new CacheReferenceWrong();
-        t.setReferences(1);
+        t.setReferences(0);
+        t.addReference();
         t.setLastCheck(System.currentTimeMillis());
+
+        for(T exists : cached) {
+            if(exists.getId().equals(t.getId())) {
+                System.out.println("Duplicada...");
+                System.out.println(exists.getClass().getSimpleName());
+            }
+        }
+
         cached.add(t);
     }
 
@@ -45,8 +54,10 @@ public class Cache<T extends BaseEntity> {
         Iterator<T> i = cached.iterator();
 
         while (i.hasNext()) {
-            if (i.next() == baseEntity) {
+            BaseEntity entity = i.next();
+            if (entity == baseEntity) {
                 i.remove();
+                entity.removeReference();
                 break;
             }
         }

@@ -1,7 +1,6 @@
 package com.github.manolo8.simplecraft.domain.group;
 
-import com.github.manolo8.simplecraft.model.BaseEntity;
-import com.github.manolo8.simplecraft.model.NamedEntity;
+import com.github.manolo8.simplecraft.data.model.NamedEntity;
 
 import java.util.List;
 
@@ -17,6 +16,7 @@ public class Group extends NamedEntity {
     }
 
     public void setTag(String tag) {
+        if (this.tag != null && !this.tag.equals(tag)) setNeedSave(true);
         this.tag = tag;
     }
 
@@ -25,6 +25,7 @@ public class Group extends NamedEntity {
     }
 
     public void setParent(Group parent) {
+        if (this.parent != null && !this.parent.equals(parent)) setNeedSave(true);
         this.parent = parent;
     }
 
@@ -41,6 +42,7 @@ public class Group extends NamedEntity {
     }
 
     public void setDefault(boolean aDefault) {
+        if (this.isDefault != aDefault) setNeedSave(true);
         isDefault = aDefault;
     }
 
@@ -52,8 +54,9 @@ public class Group extends NamedEntity {
     }
 
     public boolean addPermission(String permission) {
-        if(hasPermission(permission)) return false;
+        if (hasPermission(permission)) return false;
         getPermissions().add(permission);
+        setNeedSave(true);
         return true;
     }
 }

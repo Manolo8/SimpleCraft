@@ -1,6 +1,7 @@
 package com.github.manolo8.simplecraft.domain.user;
 
-import com.github.manolo8.simplecraft.data.repository.UserRepository;
+import com.github.manolo8.simplecraft.core.world.WorldService;
+import com.github.manolo8.simplecraft.domain.user.data.UserRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -11,13 +12,17 @@ import java.util.UUID;
 
 public class UserService {
 
+    public static UserService instance;
     private final List<User> logged;
     private final UserRepository userRepository;
+    private final WorldService worldService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(WorldService worldService, UserRepository userRepository) {
         this.logged = new ArrayList<>();
         this.userRepository = userRepository;
+        this.worldService = worldService;
 
+        instance = this;
         init();
     }
 
@@ -35,13 +40,19 @@ public class UserService {
     }
 
     /**
-     * @param lastName ultimo nome
+     * @param lastName nome
      * @return User ou null
      */
     public User getOfflineUser(String lastName) {
         for (User user : logged) if (user.match(lastName)) return user;
 
         return userRepository.findOne(lastName);
+    }
+
+    public User getOfflineUser(int id) {
+        for (User user : logged) if (user.match(id)) return user;
+
+        return userRepository.findOne(id);
     }
 
     public User getOnlineUser(Player player) {
@@ -58,9 +69,8 @@ public class UserService {
         User user = userRepository.findOne(player.getUniqueId());
 
         user.setName(player.getName());
-
+        user.setWorldId(worldService.getWorldId(player.getWorld()));
         user.addReference();
-
         user.setBase(player);
 
         logged.add(user);
@@ -73,6 +83,11 @@ public class UserService {
             User user = logged.get(i);
             if (user.match(player)) {
                 user.removeReference();
+                if (user.getInventoryView() != null) {
+                    user.getInventoryView().close(true);
+                    user.setInventoryView(null);
+                }
+                user.setBase(null);
                 logged.remove(i);
                 userRepository.save(user);
                 break;

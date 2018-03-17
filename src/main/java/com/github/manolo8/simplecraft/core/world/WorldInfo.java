@@ -1,10 +1,11 @@
 package com.github.manolo8.simplecraft.core.world;
 
-import com.github.manolo8.simplecraft.model.BaseEntity;
+import com.github.manolo8.simplecraft.data.model.NamedEntity;
+import org.bukkit.World;
 
 import java.util.UUID;
 
-public class WorldInfo extends BaseEntity{
+public class WorldInfo extends NamedEntity {
 
     private UUID uuid;
     private int protectionService;
@@ -15,6 +16,10 @@ public class WorldInfo extends BaseEntity{
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public boolean match(World world) {
+        return uuid.equals(world.getUID());
     }
 
     public int getProtectionService() {

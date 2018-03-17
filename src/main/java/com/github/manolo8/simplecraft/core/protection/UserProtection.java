@@ -9,13 +9,13 @@ public interface UserProtection {
 
     boolean isInArea(Location location);
 
-    boolean canBreak(User user, Block block);
+    boolean canBreak(User user, Material type);
 
-    boolean canPlace(User user, Block block);
+    boolean canPlace(User user, Material type);
 
-    boolean canInteract(User user, Block block);
+    boolean canInteract(User user, Material type);
 
     boolean isPvpOn();
 
-    boolean isAnimalPvpOn();
+    boolean isAnimalPvpOn(User user);
 }

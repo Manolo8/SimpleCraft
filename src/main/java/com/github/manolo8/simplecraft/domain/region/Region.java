@@ -1,10 +1,9 @@
 package com.github.manolo8.simplecraft.domain.region;
 
 import com.github.manolo8.simplecraft.core.protection.Protection;
+import com.github.manolo8.simplecraft.data.model.NamedEntity;
 import com.github.manolo8.simplecraft.domain.user.User;
-import com.github.manolo8.simplecraft.model.NamedEntity;
 import com.github.manolo8.simplecraft.utils.location.SimpleArea;
-import com.github.manolo8.simplecraft.utils.location.SimpleLocation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,7 +11,7 @@ import org.bukkit.block.Block;
 
 public class Region extends NamedEntity implements Protection {
 
-    private World world;
+    private int worldId;
     private SimpleArea area;
     private boolean pvpOn;
     private boolean pvpAnimalOn;
@@ -24,12 +23,12 @@ public class Region extends NamedEntity implements Protection {
     private boolean canInteract;
 
     //---- ENCAPSULATION ----
-    public World getWorld() {
-        return world;
+    public int getWorldId() {
+        return worldId;
     }
 
-    public void setWorld(World world) {
-        this.world = world;
+    public void setWorldId(int worldId) {
+        this.worldId = worldId;
     }
 
     public SimpleArea getArea() {
@@ -37,10 +36,12 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setArea(SimpleArea area) {
+        if(this.area != null) setNeedSave(true);
         this.area = area;
     }
 
     public void setPvpOn(boolean pvpOn) {
+        if (this.pvpOn != pvpOn) setNeedSave(true);
         this.pvpOn = pvpOn;
     }
 
@@ -49,6 +50,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setPvpAnimalOn(boolean pvpAnimalOn) {
+        if (this.pvpAnimalOn != pvpAnimalOn) setNeedSave(true);
         this.pvpAnimalOn = pvpAnimalOn;
     }
 
@@ -57,6 +59,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanSpread(boolean canSpread) {
+        if (this.canSpread != canSpread) setNeedSave(true);
         this.canSpread = canSpread;
     }
 
@@ -65,6 +68,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanPistonWork(boolean canPistonWork) {
+        if (this.canPistonWork != canPistonWork) setNeedSave(true);
         this.canPistonWork = canPistonWork;
     }
 
@@ -73,6 +77,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanExplode(boolean canExplode) {
+        if (this.canExplode != canExplode) setNeedSave(true);
         this.canExplode = canExplode;
     }
 
@@ -81,6 +86,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanBreak(boolean canBreak) {
+        if (this.canBreak != canBreak) setNeedSave(true);
         this.canBreak = canBreak;
     }
 
@@ -89,6 +95,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanPlace(boolean canPlace) {
+        if (this.canPlace != canPlace) setNeedSave(true);
         this.canPlace = canPlace;
     }
 
@@ -97,6 +104,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     public void setCanInteract(boolean canInteract) {
+        if (this.canInteract != canInteract) setNeedSave(true);
         this.canInteract = canInteract;
     }
     //---- ENCAPSULATION ----
@@ -113,7 +121,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     @Override
-    public boolean canPistonWork(Location initiator) {
+    public boolean canPistonWork() {
         return canPistonWork;
     }
 
@@ -124,22 +132,22 @@ public class Region extends NamedEntity implements Protection {
 
     @Override
     public boolean isInArea(Location location) {
-        return area.isInArea(location);
+        return area != null && area.isInArea(location);
     }
 
     @Override
-    public boolean canBreak(User user, Block block) {
+    public boolean canBreak(User user, Material material) {
         return canBreak || user.hasPermission("admin.block.break");
     }
 
     @Override
-    public boolean canPlace(User user, Block block) {
+    public boolean canPlace(User user, Material material) {
         return canPlace || user.hasPermission("admin.block.place");
     }
 
     @Override
-    public boolean canInteract(User user, Block block) {
-        return canInteract;
+    public boolean canInteract(User user, Material material) {
+        return canInteract || user.hasPermission("admin.interact");
     }
 
     @Override
@@ -148,7 +156,7 @@ public class Region extends NamedEntity implements Protection {
     }
 
     @Override
-    public boolean isAnimalPvpOn() {
+    public boolean isAnimalPvpOn(User ignored) {
         return pvpAnimalOn;
     }
     //---- METHODS ----

@@ -1,7 +1,7 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.data.dto.UserDTO;
 import com.github.manolo8.simplecraft.domain.user.User;
+import com.github.manolo8.simplecraft.domain.user.data.UserDTO;
 
 import java.util.UUID;
 

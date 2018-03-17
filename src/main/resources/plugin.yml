@@ -9,3 +9,15 @@ commands:
     usage: test
   group:
     usage: test
+  region:
+    usage: test
+  plot:
+    usage: test
+  world:
+    usage: test
+  status:
+    usage: test
+  warp:
+    usage: test
+  warpadmin:
+    usage: test

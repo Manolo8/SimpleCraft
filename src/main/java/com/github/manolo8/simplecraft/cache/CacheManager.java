@@ -1,8 +1,11 @@
 package com.github.manolo8.simplecraft.cache;
 
-import com.github.manolo8.simplecraft.model.BaseEntity;
+import com.github.manolo8.simplecraft.data.model.BaseEntity;
+import com.github.manolo8.simplecraft.data.model.NamedEntity;
+import org.bukkit.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CacheManager implements Runnable {
@@ -20,8 +23,12 @@ public class CacheManager implements Runnable {
     public void saveAll() {
         for (Cache cache : cacheList)
             if (cache instanceof SaveCache)
-                for (Object object : cache.getCached())
-                    ((SaveCache) cache).save(object);
+                for (Object object : cache.getCached()) {
+                    BaseEntity entity = (BaseEntity) object;
+
+                    if(entity.isNeedSave())
+                        ((SaveCache) cache).save(entity);
+                }
     }
 
     @Override
@@ -37,8 +44,14 @@ public class CacheManager implements Runnable {
                     continue;
                 }
 
-                if (cache instanceof SaveCache)
+                if (cache instanceof SaveCache && baseEntity.isNeedSave())
                     ((SaveCache) cache).save(baseEntity);
+
+                if(baseEntity instanceof NamedEntity) {
+                    System.out.println("Removed " + ((NamedEntity) baseEntity).getName());
+                } else {
+                    System.out.println("Removed " + baseEntity.getClass().getSimpleName());
+                }
 
                 cache.remove(baseEntity);
                 break;

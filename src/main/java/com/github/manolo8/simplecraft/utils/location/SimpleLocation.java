@@ -12,23 +12,23 @@ public class SimpleLocation implements Cloneable {
     private int x;
     private int y;
     private int z;
+    private float yaw;
+    private float pitch;
+
+    public SimpleLocation(int x, int y, int z, float yaw, float pitch) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
 
     public SimpleLocation(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getZ() {
-        return z;
+        this.yaw = 0;
+        this.pitch = 0;
     }
 
     public SimpleLocation(Location location) {
@@ -46,7 +46,6 @@ public class SimpleLocation implements Cloneable {
         }
     }
 
-
     public static SimpleLocation mathMax(SimpleLocation one, SimpleLocation two) {
         return new SimpleLocation(Math.max(one.x, two.x),
                 Math.max(one.y, two.y),
@@ -57,6 +56,26 @@ public class SimpleLocation implements Cloneable {
         return new SimpleLocation(Math.min(one.x, two.x),
                 Math.min(one.y, two.y),
                 Math.min(one.z, two.z));
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 
     public Block getBlock(UUID world) {
@@ -95,6 +114,8 @@ public class SimpleLocation implements Cloneable {
     }
 
     public Location getLocation(World world) {
-        return new Location(world, x, y, z);
+        return new Location(world, x, y, z, yaw, pitch);
     }
+
+
 }

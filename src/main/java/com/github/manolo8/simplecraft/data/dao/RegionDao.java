@@ -1,7 +1,7 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.data.dto.RegionDTO;
 import com.github.manolo8.simplecraft.domain.region.Region;
+import com.github.manolo8.simplecraft.domain.region.data.RegionDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,13 +27,13 @@ public interface RegionDao {
      * @return a new region with the
      * name
      */
-    RegionDTO create(String name, UUID world);
+    RegionDTO create(String name, int worldId);
 
     /**
-     * @param world the world
+     * @param worldId the world
      * @return a list of region by the world
      */
-    List<RegionDTO> findAllByWorld(UUID world);
+    List<RegionDTO> findAllByWorld(int worldId);
 
     /**
      * Remove an region from the database

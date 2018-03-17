@@ -1,6 +1,5 @@
 package com.github.manolo8.simplecraft.cache.impl;
 
-import com.github.manolo8.simplecraft.cache.Cache;
 import com.github.manolo8.simplecraft.cache.NamedCache;
 import com.github.manolo8.simplecraft.cache.SaveCache;
 import com.github.manolo8.simplecraft.data.dao.GroupDao;

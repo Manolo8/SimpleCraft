@@ -4,6 +4,7 @@ import com.github.manolo8.simplecraft.core.protection.Protection;
 import com.github.manolo8.simplecraft.domain.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class DefaultProtection implements Protection {
 
@@ -13,7 +14,7 @@ public class DefaultProtection implements Protection {
     }
 
     @Override
-    public boolean isAnimalPvpOn() {
+    public boolean isAnimalPvpOn(User user) {
         return false;
     }
 
@@ -23,12 +24,12 @@ public class DefaultProtection implements Protection {
     }
 
     @Override
-    public boolean canBreak(User user) {
+    public boolean canBreak(User user, Material material) {
         return user.hasPermission("build.in.default");
     }
 
     @Override
-    public boolean canPlace(User user) {
+    public boolean canPlace(User user, Material material) {
         return user.hasPermission("place.in.default");
     }
 
@@ -38,7 +39,7 @@ public class DefaultProtection implements Protection {
     }
 
     @Override
-    public boolean canInteract(User user, Material target) {
+    public boolean canInteract(User user, Material material) {
         return user.hasPermission("interact.in.default");
     }
 
@@ -48,7 +49,7 @@ public class DefaultProtection implements Protection {
     }
 
     @Override
-    public boolean canPistonWork(Location initiator) {
+    public boolean canPistonWork() {
         return false;
     }
 

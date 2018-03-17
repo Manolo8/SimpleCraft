@@ -1,9 +1,7 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.data.dto.GroupDTO;
 import com.github.manolo8.simplecraft.domain.group.Group;
-
-import java.util.UUID;
+import com.github.manolo8.simplecraft.domain.group.data.GroupDTO;
 
 public interface GroupDao {
 
@@ -20,6 +18,12 @@ public interface GroupDao {
      * if does not exits, return null
      */
     GroupDTO findOne(String name);
+
+    /**
+     * @return the default group, or null
+     * if does not exists
+     */
+    GroupDTO findDefaultGroup();
 
     /**
      * @param name of the group

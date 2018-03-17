@@ -1,8 +1,6 @@
 package com.github.manolo8.simplecraft.domain.group;
 
-import com.github.manolo8.simplecraft.data.repository.GroupRepository;
-
-import java.util.UUID;
+import com.github.manolo8.simplecraft.domain.group.data.GroupRepository;
 
 public class GroupService {
 
@@ -30,5 +28,9 @@ public class GroupService {
         if(group == null) return;
 
         groupRepository.delete(group);
+    }
+
+    public void setDefault(Group aDefault) {
+
     }
 }

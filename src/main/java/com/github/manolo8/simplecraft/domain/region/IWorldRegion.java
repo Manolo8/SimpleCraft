@@ -4,20 +4,21 @@ import com.github.manolo8.simplecraft.core.protection.Protection;
 import com.github.manolo8.simplecraft.core.protection.ProtectionChecker;
 import com.github.manolo8.simplecraft.core.protection.impl.DefaultProtection;
 import com.github.manolo8.simplecraft.core.world.IWorld;
-import org.bukkit.World;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class IWorldRegion implements IWorld {
+public class IWorldRegion implements IWorld, ProtectionChecker {
 
-    private World world;
+    private int worldId;
     private List<Region> regions;
-    private RegionChecker checker;
     private Protection defaultProtection;
 
-    public IWorldRegion(List<Region> regions) {
-        this.regions = regions;
-        this.checker = new RegionChecker(this);
+    public IWorldRegion(int worldId) {
+        this.worldId = worldId;
+        this.regions = new ArrayList<>();
         this.defaultProtection = new DefaultProtection();
     }
 
@@ -27,10 +28,10 @@ public class IWorldRegion implements IWorld {
 
     public void addRegion(Region region) {
         this.regions.add(region);
-    }
-
-    public void removeRegion(String name) {
-        regions.removeIf(region -> region.getName().equalsIgnoreCase(name));
+        //Adiciona uma referencia para nao
+        //Ser removida do sistema de cache
+        // :)
+        region.addReference();
     }
 
     public Protection getDefaultProtection() {
@@ -38,17 +39,31 @@ public class IWorldRegion implements IWorld {
     }
 
     @Override
-    public boolean match(World world) {
-        return this.world.equals(world);
+    public boolean match(int worldId) {
+        return this.worldId == worldId;
     }
 
     @Override
-    public void setWorld(World world) {
-        this.world = world;
+    public void chunkLoad(int x, int z) {
+        //Não vamos usar isso no região
+    }
+
+    @Override
+    public void chunkUnload(int x, int z, Chunk[] chunks) {
+        //Não vamos usar isso no região
     }
 
     @Override
     public ProtectionChecker getChecker() {
-        return checker;
+        return this;
+    }
+
+    @Override
+    public Protection getLocationProtection(Location location) {
+        for (Region region : regions) {
+            if (region.isInArea(location)) return region;
+        }
+
+        return defaultProtection;
     }
 }

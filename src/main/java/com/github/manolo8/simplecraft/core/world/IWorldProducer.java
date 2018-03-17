@@ -6,5 +6,7 @@ public interface IWorldProducer {
 
     int getType();
 
-    IWorld produce(World world);
+    IWorld produce(int worldId);
+
+    void unload(IWorld iWorld);
 }
