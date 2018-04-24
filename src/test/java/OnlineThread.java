@@ -32,7 +32,6 @@ public class OnlineThread extends Thread {
     public void run() {
         while (true) {
             try {
-                sleep(50);
                 Socket socket = new Socket();
 
                 long ping = System.currentTimeMillis();
@@ -57,10 +56,9 @@ public class OnlineThread extends Thread {
                 data[1] = splited[splited.length - 2];
                 data[2] = String.valueOf(ping);
 
-                if(locked) continue;
                 locked = true;
-                Test.createThread(address, current + 2);
 
+                sleep(5000);
             } catch (Exception e) {
                 if (locked) continue;
                 address = new InetSocketAddress(address.getAddress(), current++);

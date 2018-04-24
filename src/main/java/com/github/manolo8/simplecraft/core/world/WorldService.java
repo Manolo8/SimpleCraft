@@ -4,10 +4,11 @@ import com.github.manolo8.simplecraft.core.protection.ProtectionChecker;
 import com.github.manolo8.simplecraft.core.protection.impl.DefaultChecker;
 import com.github.manolo8.simplecraft.core.protection.impl.DefaultIWorldProducer;
 import com.github.manolo8.simplecraft.data.dao.WorldInfoDao;
-import com.github.manolo8.simplecraft.domain.plot.generator.PlotGenerator;
+import com.github.manolo8.simplecraft.modules.plot.generator.PlotGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,9 @@ public class WorldService {
 
         //PlotWorld
         World plot = Bukkit.createWorld(new PlotGenerator("plot"));
+        World test = Bukkit.createWorld(new WorldCreator("test"));
         worldLoad(plot);
+        worldLoad(test);
     }
 
     public void addProducer(IWorldProducer producer) {
@@ -110,7 +113,7 @@ public class WorldService {
         for (WorldInfo worldInfo : worldInfos)
             if (worldInfo.match(world)) return worldInfo;
 
-        WorldInfo info =  worldInfoDao.create(world.getName(), world.getUID(), 0);
+        WorldInfo info = worldInfoDao.create(world.getName(), world.getUID(), 0);
         worldInfos.add(info);
         return info;
     }

@@ -1,8 +1,8 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.domain.plot.Plot;
-import com.github.manolo8.simplecraft.domain.plot.data.PlotDTO;
-import com.github.manolo8.simplecraft.domain.plot.data.PlotInfo;
+import com.github.manolo8.simplecraft.modules.plot.Plot;
+import com.github.manolo8.simplecraft.modules.plot.data.PlotDTO;
+import com.github.manolo8.simplecraft.modules.plot.data.PlotInfo;
 
 import java.util.List;
 

@@ -1,12 +1,28 @@
 package com.github.manolo8.simplecraft.core.protection.impl;
 
 import com.github.manolo8.simplecraft.core.protection.Protection;
-import com.github.manolo8.simplecraft.domain.user.User;
+import com.github.manolo8.simplecraft.modules.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 
 public class DefaultProtection implements Protection {
+
+    private int users;
+
+    @Override
+    public int getUsers() {
+        return users;
+    }
+
+    @Override
+    public void addUser() {
+        users++;
+    }
+
+    @Override
+    public void removeUser() {
+        users--;
+    }
 
     @Override
     public boolean isGlobal() {

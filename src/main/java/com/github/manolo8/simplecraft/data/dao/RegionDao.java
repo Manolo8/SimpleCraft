@@ -1,10 +1,9 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.domain.region.Region;
-import com.github.manolo8.simplecraft.domain.region.data.RegionDTO;
+import com.github.manolo8.simplecraft.modules.region.Region;
+import com.github.manolo8.simplecraft.modules.region.data.RegionDTO;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface RegionDao {
 

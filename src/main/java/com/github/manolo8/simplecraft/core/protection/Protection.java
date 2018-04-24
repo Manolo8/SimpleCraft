@@ -1,10 +1,14 @@
 package com.github.manolo8.simplecraft.core.protection;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 
 public interface Protection extends UserProtection {
+
+    int getUsers();
+
+    void addUser();
+
+    void removeUser();
 
     boolean isGlobal();
 

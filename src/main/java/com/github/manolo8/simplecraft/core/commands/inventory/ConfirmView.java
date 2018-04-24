@@ -49,7 +49,7 @@ public class ConfirmView extends BaseView {
         ItemActionImpl fakeItem = new ItemActionImpl();
         fakeItem.setItemStack(itemStack);
         fakeItem.setIndex(13);
-        fakeItem.setAction(user -> user.playSound(Sound.ANVIL_LAND, 20, 20));
+        fakeItem.setAction(user -> user.playSound(Sound.BLOCK_ANVIL_LAND, 20, 20));
         actions.add(fakeItem);
 
         return actions;

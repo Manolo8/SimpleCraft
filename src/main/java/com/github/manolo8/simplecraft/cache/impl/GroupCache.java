@@ -3,7 +3,7 @@ package com.github.manolo8.simplecraft.cache.impl;
 import com.github.manolo8.simplecraft.cache.NamedCache;
 import com.github.manolo8.simplecraft.cache.SaveCache;
 import com.github.manolo8.simplecraft.data.dao.GroupDao;
-import com.github.manolo8.simplecraft.domain.group.Group;
+import com.github.manolo8.simplecraft.modules.group.Group;
 
 public class GroupCache extends NamedCache<Group> implements SaveCache<Group> {
 

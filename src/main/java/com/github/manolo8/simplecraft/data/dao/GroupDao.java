@@ -1,7 +1,7 @@
 package com.github.manolo8.simplecraft.data.dao;
 
-import com.github.manolo8.simplecraft.domain.group.Group;
-import com.github.manolo8.simplecraft.domain.group.data.GroupDTO;
+import com.github.manolo8.simplecraft.modules.group.Group;
+import com.github.manolo8.simplecraft.modules.group.data.GroupDTO;
 
 public interface GroupDao {
 

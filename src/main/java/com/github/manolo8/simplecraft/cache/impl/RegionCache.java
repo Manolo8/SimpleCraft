@@ -3,7 +3,7 @@ package com.github.manolo8.simplecraft.cache.impl;
 import com.github.manolo8.simplecraft.cache.NamedCache;
 import com.github.manolo8.simplecraft.cache.SaveCache;
 import com.github.manolo8.simplecraft.data.dao.RegionDao;
-import com.github.manolo8.simplecraft.domain.region.Region;
+import com.github.manolo8.simplecraft.modules.region.Region;
 
 public class RegionCache extends NamedCache<Region> implements SaveCache<Region> {
 

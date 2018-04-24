@@ -1,6 +1,6 @@
 package com.github.manolo8.simplecraft.core.commands.inventory;
 
-import com.github.manolo8.simplecraft.domain.user.User;
+import com.github.manolo8.simplecraft.modules.user.User;
 import com.github.manolo8.simplecraft.utils.ItemStackUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -39,7 +39,7 @@ public class InventoryView {
             update();
             return;
         }
-        user.playSound(Sound.ANVIL_LAND, 20, 20);
+        user.playSound(Sound.BLOCK_ANVIL_LAND, 20, 20);
     }
 
     public void previousPage() {
@@ -47,7 +47,7 @@ public class InventoryView {
             update();
             return;
         }
-        user.playSound(Sound.ANVIL_LAND, 20, 20);
+        user.playSound(Sound.BLOCK_ANVIL_LAND, 20, 20);
     }
 
     public void open() {
@@ -87,10 +87,10 @@ public class InventoryView {
             return;
         }
 
-        this.views = views.subList(0, size - 1);
-
         //A view é removida, removemos a referencia
         getCurrent().removeReference();
+
+        this.views = views.subList(0, size - 1);
 
         current = size - 2;
         pagination();
@@ -117,7 +117,7 @@ public class InventoryView {
 
     private void update() {
         clear();
-        user.playSound(Sound.BURP, 20, 20);
+        user.playSound(Sound.ENTITY_PLAYER_BURP, 20, 20);
         View view = getCurrent();
         temp = (List<ItemAction>) view.getActions();
 

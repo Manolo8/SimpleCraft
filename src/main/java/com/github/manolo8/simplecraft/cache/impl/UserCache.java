@@ -3,7 +3,7 @@ package com.github.manolo8.simplecraft.cache.impl;
 import com.github.manolo8.simplecraft.cache.NamedCache;
 import com.github.manolo8.simplecraft.cache.SaveCache;
 import com.github.manolo8.simplecraft.data.dao.UserDao;
-import com.github.manolo8.simplecraft.domain.user.User;
+import com.github.manolo8.simplecraft.modules.user.User;
 
 import java.util.UUID;
 

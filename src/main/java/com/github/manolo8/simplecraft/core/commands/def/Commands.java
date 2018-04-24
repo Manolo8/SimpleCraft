@@ -3,19 +3,21 @@ package com.github.manolo8.simplecraft.core.commands.def;
 import com.github.manolo8.simplecraft.core.commands.def.annotation.CommandMapping;
 import com.github.manolo8.simplecraft.core.protection.Protection;
 import com.github.manolo8.simplecraft.core.world.WorldService;
-import com.github.manolo8.simplecraft.domain.group.Group;
-import com.github.manolo8.simplecraft.domain.group.GroupService;
-import com.github.manolo8.simplecraft.domain.plot.Plot;
-import com.github.manolo8.simplecraft.domain.plot.PlotService;
-import com.github.manolo8.simplecraft.domain.plot.PlotView;
-import com.github.manolo8.simplecraft.domain.plot.data.PlotInfo;
-import com.github.manolo8.simplecraft.domain.region.Region;
-import com.github.manolo8.simplecraft.domain.region.RegionService;
-import com.github.manolo8.simplecraft.domain.user.User;
-import com.github.manolo8.simplecraft.domain.user.UserService;
-import com.github.manolo8.simplecraft.domain.user.UserView;
-import com.github.manolo8.simplecraft.domain.warp.Warp;
-import com.github.manolo8.simplecraft.domain.warp.WarpService;
+import com.github.manolo8.simplecraft.modules.group.Group;
+import com.github.manolo8.simplecraft.modules.group.GroupService;
+import com.github.manolo8.simplecraft.modules.plot.Plot;
+import com.github.manolo8.simplecraft.modules.plot.PlotService;
+import com.github.manolo8.simplecraft.modules.plot.PlotView;
+import com.github.manolo8.simplecraft.modules.plot.data.PlotInfo;
+import com.github.manolo8.simplecraft.modules.portal.Portal;
+import com.github.manolo8.simplecraft.modules.portal.PortalService;
+import com.github.manolo8.simplecraft.modules.region.Region;
+import com.github.manolo8.simplecraft.modules.region.RegionService;
+import com.github.manolo8.simplecraft.modules.user.User;
+import com.github.manolo8.simplecraft.modules.user.UserService;
+import com.github.manolo8.simplecraft.modules.user.UserView;
+import com.github.manolo8.simplecraft.modules.warp.Warp;
+import com.github.manolo8.simplecraft.modules.warp.WarpService;
 import com.github.manolo8.simplecraft.utils.RecursiveInformation;
 import com.github.manolo8.simplecraft.utils.location.SimpleArea;
 import org.apache.commons.lang.math.NumberUtils;
@@ -38,19 +40,22 @@ public class Commands {
     private final PlotService plotService;
     private final WorldService worldService;
     private final WarpService warpService;
+    private final PortalService portalService;
 
     public Commands(UserService userService,
                     GroupService groupService,
                     RegionService regionService,
                     PlotService plotService,
                     WorldService worldService,
-                    WarpService warpService) {
+                    WarpService warpService,
+                    PortalService portalService) {
         this.userService = userService;
         this.groupService = groupService;
         this.regionService = regionService;
         this.plotService = plotService;
         this.worldService = worldService;
         this.warpService = warpService;
+        this.portalService = portalService;
     }
 
     //--------------------------------------------------
@@ -168,7 +173,7 @@ public class Commands {
         }
 
         StringBuilder builder = new StringBuilder();
-        for(int i = 2; i < args.length; i++) {
+        for (int i = 2; i < args.length; i++) {
             builder.append(args[i]).append(" ");
         }
 
@@ -423,7 +428,6 @@ public class Commands {
             return;
         }
 
-        region.setArea(new SimpleArea(user.getPos1(), user.getPos2()));
         user.sendMessage("§aRegião criada com sucesso!");
     }
 
@@ -545,8 +549,17 @@ public class Commands {
             subCommand = "auto",
             args = 1,
             permission = "plot.create",
-            usage = "§c/group permission <group> add <permission>")
+            usage = "§c/plot auto")
     public void plotAuto(User user, String[] args) {
+
+        if (!user.hasPermission("plot.limit.bypass")) {
+            int limit = user.getPermissionQuantity("plot.limit.");
+
+            if (user.getPlotQuantity() >= limit) {
+                user.sendMessage("§aVocê atingiu o limite de " + limit + " plots!");
+                return;
+            }
+        }
 
         Plot plot = plotService.autoCreatePlot(user);
 
@@ -567,8 +580,17 @@ public class Commands {
             subCommand = "claim",
             args = 1,
             permission = "plot.create",
-            usage = "§c/plot create")
+            usage = "§c/plot claim")
     public void plotClaim(User user, String[] args) {
+
+        if (!user.hasPermission("plot.limit.bypass")) {
+            int limit = user.getPermissionQuantity("plot.limit.");
+
+            if (user.getPlotQuantity() >= limit) {
+                user.sendMessage("§aVocê atingiu o limite de " + limit + " plots!");
+                return;
+            }
+        }
 
         Plot plot = plotService.createPlot(user);
 
@@ -716,4 +738,21 @@ public class Commands {
     //--------------------------------------------------
     //=====> END OF WORLD COMMANDS
     //--------------------------------------------------
+
+    @CommandMapping(command = "portal"
+            , subCommand = "create",
+            permission = "portal.create",
+            args = 2,
+            usage = "§c/portal create [name]")
+    public void portalCreate(User user, String[] args) {
+        if (user.getPos1() == null || user.getPos2() == null) {
+            user.sendMessage("§aMarque as posições primeiro!");
+            return;
+        }
+
+        Portal portal = portalService.create(user, args[1]);
+
+        if (portal == null) user.sendMessage("§aNão foi possível criar o portal");
+        else user.sendMessage("§aO portal foi criado com sucesso!");
+    }
 }

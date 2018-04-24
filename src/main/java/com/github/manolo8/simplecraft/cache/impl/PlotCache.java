@@ -3,7 +3,7 @@ package com.github.manolo8.simplecraft.cache.impl;
 import com.github.manolo8.simplecraft.cache.Cache;
 import com.github.manolo8.simplecraft.cache.SaveCache;
 import com.github.manolo8.simplecraft.data.dao.PlotDao;
-import com.github.manolo8.simplecraft.domain.plot.Plot;
+import com.github.manolo8.simplecraft.modules.plot.Plot;
 
 public class PlotCache extends Cache<Plot> implements SaveCache<Plot>{
 

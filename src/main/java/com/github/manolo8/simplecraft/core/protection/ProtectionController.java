@@ -1,8 +1,8 @@
 package com.github.manolo8.simplecraft.core.protection;
 
 import com.github.manolo8.simplecraft.core.world.WorldService;
-import com.github.manolo8.simplecraft.domain.user.User;
-import com.github.manolo8.simplecraft.domain.user.UserService;
+import com.github.manolo8.simplecraft.modules.user.User;
+import com.github.manolo8.simplecraft.modules.user.UserService;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -80,7 +80,7 @@ public class ProtectionController {
      * @return true se tem permissão e false caso não
      */
     public boolean breakBlock(User user, Block block) {
-        return getUserProtection(user, block.getLocation()).canBreak(user, block.getType());
+        return user.getLocationProtection(block.getLocation()).canBreak(user, block.getType());
     }
 
 
@@ -92,17 +92,17 @@ public class ProtectionController {
      * @return true se tem permissão e false caso não tenha
      */
     public boolean placeBlock(User user, Block block) {
-        return getUserProtection(user, block.getLocation()).canPlace(user, block.getType());
+        return user.getLocationProtection(block.getLocation()).canPlace(user, block.getType());
     }
 
     /**
-     * @param user     o jogador
+     * @param user   o jogador
      * @param target o local do jogador alvo
      * @return true se tem pvp on, false caso não
      */
     public boolean isPvpOn(User user, Location target) {
-        return getUserProtection(user, user.getBase().getLocation()).isPvpOn()
-                && getUserProtection(user, target).isPvpOn();
+        return user.getLocationProtection(user.getBase().getLocation()).isPvpOn()
+                && user.getLocationProtection(target).isPvpOn();
     }
 
     /**
@@ -111,7 +111,7 @@ public class ProtectionController {
      * @return true se tem pvp on, false caso não
      */
     public boolean isAnimalPvpOn(User user, Location location) {
-        return getUserProtection(user, location).isAnimalPvpOn(user);
+        return user.getLocationProtection(location).isAnimalPvpOn(user);
     }
 
     /**
@@ -129,7 +129,7 @@ public class ProtectionController {
                 || type == Material.BURNING_FURNACE
                 || type == Material.BREWING_STAND
                 || type == Material.ENCHANTMENT_TABLE)
-            return getUserProtection(user, block.getLocation()).canInteract(user, type);
+            return user.getLocationProtection(block.getLocation()).canInteract(user, type);
 
         return true;
     }
@@ -170,23 +170,11 @@ public class ProtectionController {
         return protection.canSpread(block.getType());
     }
 
-    private Protection getLocationProtection(Location location) {
-        return worldService.getChecker(location.getWorld()).getLocationProtection(location);
+    public void updateUserProtection(User user) {
+        user.getLocationProtection(user.getBase().getLocation());
     }
 
-    private Protection getUserProtection(User user, Location location) {
-
-        Protection protection = user.getProtection();
-
-        //Se a proteção for global ou o jogador/bloco que o jogador quebrou
-        //Não está na área da proteção, o sistema pega uma proteção do
-        //Checker (O checker é por mundo :))
-        if (!protection.isInArea(location) || protection.isGlobal()) {
-            protection = user.getCurrentChecker().getLocationProtection(location);
-            //Atualiza a nova proteção do jogador
-            user.setProtection(protection);
-        }
-
-        return protection;
+    private Protection getLocationProtection(Location location) {
+        return worldService.getChecker(location.getWorld()).getLocationProtection(location);
     }
 }

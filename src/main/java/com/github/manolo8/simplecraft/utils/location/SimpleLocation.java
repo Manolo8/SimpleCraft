@@ -94,6 +94,12 @@ public class SimpleLocation implements Cloneable {
         return new SimpleLocation(this.x + x, this.y, this.z + z);
     }
 
+    public boolean isInArea(int x, int y, int z, int s) {
+        return (y >= this.y - s && y <= this.y + s)
+                && (z >= this.z - s && z <= this.z + s)
+                && (x >= this.x - s && x <= this.x + s);
+    }
+
     @Override
     public String toString() {
         return x + " " + y + " " + z;

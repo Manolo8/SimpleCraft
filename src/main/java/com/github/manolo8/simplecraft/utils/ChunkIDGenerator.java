@@ -1,6 +1,6 @@
 package com.github.manolo8.simplecraft.utils;
 
-import com.github.manolo8.simplecraft.domain.plot.data.PlotInfo;
+import com.github.manolo8.simplecraft.modules.plot.data.PlotInfo;
 
 public class ChunkIDGenerator {
 
@@ -13,7 +13,8 @@ public class ChunkIDGenerator {
      */
     public static int generate(int xx, int zz) {
         if (xx == 0 && zz == 0) return 0;
-        if (Math.abs(xx) + Math.abs(zz) > 1000) return -1;
+        if (Math.abs(xx) + Math.abs(zz) > 2000) return -1;
+
 
         int id = 1;
         int x = 0;

@@ -1,6 +1,6 @@
 package com.github.manolo8.simplecraft.utils;
 
-import com.github.manolo8.simplecraft.domain.group.Group;
+import com.github.manolo8.simplecraft.modules.group.Group;
 
 public class RecursiveInformation {
 

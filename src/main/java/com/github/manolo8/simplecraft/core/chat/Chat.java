@@ -1,7 +1,7 @@
 package com.github.manolo8.simplecraft.core.chat;
 
-import com.github.manolo8.simplecraft.domain.user.User;
-import com.github.manolo8.simplecraft.domain.user.UserService;
+import com.github.manolo8.simplecraft.modules.user.User;
+import com.github.manolo8.simplecraft.modules.user.UserService;
 import com.github.manolo8.simplecraft.utils.replace.Replace;
 
 public class Chat {
@@ -24,8 +24,6 @@ public class Chat {
         for (User target : userService.getLogged()) {
             double distance = target.distance(user);
             if (distance == -1 || distance > this.distance) continue;
-
-
             target.sendMessage(message);
         }
     }

@@ -1,21 +1,38 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Test2 {
 
     public static void main(String[] args) {
-
-    }
-
-    public static int solution2(int x, int y) {
-        int index;
-        if (x * x >= y * y) {
-            index = 4 * x * x - x - y;
-            if (x < y)
-                index = index - 2 * (x - y);
-        } else {
-            index = 4 * y * y - x - y;
-            if (x < y)
-                index = index + 2 * (x - y);
+        for(int i = 0; i < 100; i++) {
+            System.out.println((int) (250 + Math.pow(i + 5, 1.75D)));
         }
-
-        return index;
     }
+
+//    public static void main(String[] args) throws IOException {
+//        File file = new File("D:\\test.txt");
+//
+//        FileWriter writer = new FileWriter(file);
+//
+//        int i = 0;
+//        long length = 0;
+//
+//        while (i < Integer.MAX_VALUE) {
+//            i++;
+//
+//            String value = String.valueOf(i);
+//            int addLength = value.length() + 3;
+//
+//            if (length + addLength > 150) {
+//                writer.write('\n');
+//                length = 0;
+//            } else length += addLength;
+//
+//            writer.write(value);
+//            writer.write(" - ");
+//        }
+//
+//        writer.close();
+//    }
 }

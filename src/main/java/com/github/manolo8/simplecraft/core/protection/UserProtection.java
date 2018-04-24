@@ -1,9 +1,8 @@
 package com.github.manolo8.simplecraft.core.protection;
 
-import com.github.manolo8.simplecraft.domain.user.User;
+import com.github.manolo8.simplecraft.modules.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 
 public interface UserProtection {
 
