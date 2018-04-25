@@ -23,3 +23,5 @@ commands:
     usage: test
   portal:
     usage: test
+  skill:
+    usage: test

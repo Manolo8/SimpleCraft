@@ -1,11 +1,8 @@
 package com.github.manolo8.simplecraft.cache;
 
 import com.github.manolo8.simplecraft.data.model.BaseEntity;
-import com.github.manolo8.simplecraft.data.model.NamedEntity;
-import org.bukkit.World;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class CacheManager implements Runnable {
@@ -26,7 +23,7 @@ public class CacheManager implements Runnable {
                 for (Object object : cache.getCached()) {
                     BaseEntity entity = (BaseEntity) object;
 
-                    if(entity.isNeedSave())
+                    if (entity.isNeedSave())
                         ((SaveCache) cache).save(entity);
                 }
     }
@@ -37,7 +34,7 @@ public class CacheManager implements Runnable {
             for (Object object : cache.getCached()) {
                 BaseEntity baseEntity = (BaseEntity) object;
 
-                if (System.currentTimeMillis() - baseEntity.getLastCheck() < 60000) continue;
+                if (System.currentTimeMillis() - baseEntity.getLastCheck() < 10000) continue;
 
                 if (baseEntity.getReferences() > 1) {
                     baseEntity.setLastCheck(System.currentTimeMillis());
@@ -47,13 +44,8 @@ public class CacheManager implements Runnable {
                 if (cache instanceof SaveCache && baseEntity.isNeedSave())
                     ((SaveCache) cache).save(baseEntity);
 
-                if(baseEntity instanceof NamedEntity) {
-                    System.out.println("Removed " + ((NamedEntity) baseEntity).getName());
-                } else {
-                    System.out.println("Removed " + baseEntity.getClass().getSimpleName());
-                }
-
                 cache.remove(baseEntity);
+
                 break;
             }
         }

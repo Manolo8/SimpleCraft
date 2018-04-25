@@ -6,6 +6,8 @@ import com.github.manolo8.simplecraft.core.protection.ProtectionController;
 import com.github.manolo8.simplecraft.modules.mob.MobService;
 import com.github.manolo8.simplecraft.modules.portal.PortalService;
 import com.github.manolo8.simplecraft.modules.shop.ShopController;
+import com.github.manolo8.simplecraft.modules.skill.SkillMagic;
+import com.github.manolo8.simplecraft.modules.skill.tools.*;
 import com.github.manolo8.simplecraft.modules.user.User;
 import com.github.manolo8.simplecraft.modules.user.UserService;
 import com.github.manolo8.simplecraft.utils.location.SimpleLocation;
@@ -14,17 +16,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -33,7 +30,11 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class MainListener implements Listener {
@@ -175,21 +176,61 @@ public class MainListener implements Listener {
         shopController.userCreateSign(user, event);
     }
 
+    @EventHandler
+    public void projectileShoot(ProjectileHitEvent event) {
+        ProjectileSource source = event.getEntity().getShooter();
+
+        if (!(source instanceof Player)) return;
+
+        Projectile projectile = event.getEntity();
+
+        User user = userService.getOnlineUser((Player) source);
+
+        List<ProjectileHit> list = user.getByType(ProjectileHit.class);
+
+        for (ProjectileHit hit : list)
+            hit.onProjectileHit(user, projectile);
+    }
+
+    @EventHandler
+    public void entityDamage(EntityDamageEvent event) {
+
+        if (!(event.getEntity() instanceof Player)) return;
+
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            User user = userService.getOnlineUser((Player) event.getEntity());
+
+            List<FallDamage> list = user.getByType(FallDamage.class);
+
+            DamageResult result = new DamageResult(event.getDamage());
+
+            for (FallDamage damage : list) {
+                damage.onFallDamage(user, result);
+            }
+
+            event.setDamage(result.getDamage());
+            event.setCancelled(result.isCancelled());
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void interact(PlayerInteractEvent event) {
-
-
-        if (event.getItem() != null && event.getItem().getType() == Material.STICK) {
-            Player player = event.getPlayer();
-
-
-            if (event.getAction() == Action.RIGHT_CLICK_AIR) player.setFlySpeed(1);
-            else if (event.getAction() == Action.LEFT_CLICK_AIR) player.setFlySpeed(0.1F);
-
-            player.sendMessage("Current = " + player.getFlySpeed());
-        }
-
         User user = userService.getOnlineUser(event.getPlayer());
+
+        if (event.getItem() != null) {
+            ItemStack wand = event.getItem();
+            List<Interactable> interactables = user.getByType(Interactable.class);
+            ItemStack item = event.getItem();
+            Action action = event.getAction();
+
+            for (Interactable interactable : interactables) {
+                if (!interactable.match(item, action)) continue;
+
+                interactable.onInteract(user);
+
+                break;
+            }
+        }
 
         Action action = event.getAction();
 
@@ -217,40 +258,59 @@ public class MainListener implements Listener {
     public void entityDamageEntity(EntityDamageByEntityEvent event) {
 
         Entity damager = event.getDamager();
+        User uDamager = null;
         Entity victim = event.getEntity();
-
-        mobService.entityDamage(victim, damager);
+        User uVictim = null;
 
         if (victim instanceof Player) {
             Location location = victim.getLocation();
-            User user = userService.getOnlineUser((Player) victim);
+            uDamager = userService.getOnlineUser((Player) victim);
 
-            boolean cancel = protectionController.isPvpOn(user, location);
+            boolean cancel = protectionController.isPvpOn(uDamager, location);
 
-            if (cancel) user.updatePvp();
+            if (cancel && damager instanceof Player) uDamager.updatePvp();
 
             event.setCancelled(!cancel);
         }
 
-        User user = null;
-
         if (damager instanceof Player) {
-            user = userService.getOnlineUser((Player) damager);
+            uVictim = userService.getOnlineUser((Player) damager);
         } else if (damager instanceof Arrow) {
             Projectile projectile = (Arrow) damager;
 
             if (projectile.getShooter() instanceof Player)
-                user = userService.getOnlineUser((Player) projectile.getShooter());
+                uVictim = userService.getOnlineUser((Player) projectile.getShooter());
         }
 
-        if (user != null) {
+        if (uVictim != null) {
             Location location = damager.getLocation();
 
-            boolean cancel = protectionController.isAnimalPvpOn(user, location);
+            boolean cancel = protectionController.isAnimalPvpOn(uVictim, location);
 
-            if (cancel) user.updatePvp();
+            if (cancel && victim instanceof Player) uVictim.updatePvp();
 
             event.setCancelled(!cancel);
+        }
+
+        if (!event.isCancelled()) {
+            DamageResult damageResult = new DamageResult(event.getDamage());
+
+            if (uDamager != null && damager instanceof LivingEntity) {
+                //Handle receiveDamage
+                List<ReceiveDamage> list = uDamager.getByType(ReceiveDamage.class);
+                for (ReceiveDamage receive : list) receive.onReceiveDamage((LivingEntity) damager, uDamager, damageResult);
+            }
+
+            if (uVictim != null && victim instanceof LivingEntity) {
+                //Handle giveDamage
+                List<GiveDamage> list = uVictim.getByType(GiveDamage.class);
+                for (GiveDamage give : list) give.onGiveDamage(uVictim, (LivingEntity) victim, damageResult);
+            }
+
+            event.setDamage(damageResult.getDamage());
+            event.setCancelled(damageResult.isCancelled());
+
+            mobService.entityDamage(victim, damager);
         }
     }
 

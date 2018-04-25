@@ -30,6 +30,9 @@ import com.github.manolo8.simplecraft.modules.shop.ShopService;
 import com.github.manolo8.simplecraft.modules.shop.data.ShopDao;
 import com.github.manolo8.simplecraft.modules.shop.data.ShopDaoImpl;
 import com.github.manolo8.simplecraft.modules.shop.data.ShopRepository;
+import com.github.manolo8.simplecraft.modules.skill.data.SkillDao;
+import com.github.manolo8.simplecraft.modules.skill.data.SkillDaoImpl;
+import com.github.manolo8.simplecraft.modules.skill.data.SkillRepository;
 import com.github.manolo8.simplecraft.modules.user.UserService;
 import com.github.manolo8.simplecraft.modules.user.data.UserDaoImpl;
 import com.github.manolo8.simplecraft.modules.user.data.UserRepository;
@@ -83,9 +86,14 @@ public class SimpleCraft extends JavaPlugin {
         groupService = new GroupService(groupRepository);
         cacheManager.addCache(groupCache);
 
+        SkillDao skillDao = new SkillDaoImpl(builder);
+        SkillCache skillCache = new SkillCache(skillDao);
+        SkillRepository skillRepository = new SkillRepository(skillCache, skillDao);
+        cacheManager.addCache(skillCache);
+
         UserDao userDao = new UserDaoImpl(builder);
         UserCache userCache = new UserCache(userDao);
-        UserRepository userRepository = new UserRepository(userCache, userDao, groupRepository, plotRepository);
+        UserRepository userRepository = new UserRepository(userCache, userDao, groupRepository, plotRepository, skillRepository);
         userService = new UserService(worldService, userRepository);
         cacheManager.addCache(userCache);
 
@@ -136,11 +144,14 @@ public class SimpleCraft extends JavaPlugin {
         getCommand("warp").setExecutor(commandController);
         getCommand("warpadmin").setExecutor(commandController);
         getCommand("portal").setExecutor(commandController);
+        getCommand("skill").setExecutor(commandController);
 
         MainListener mainListener = new MainListener(userService, protectionController, shopController, mobService, chat, portalService);
+
         getServer().getPluginManager().registerEvents(mainListener, this);
         getServer().getScheduler().runTaskTimer(this, cacheManager, 100, 100);
         getServer().getScheduler().runTaskTimer(this, mobService, 200, 200);
+        getServer().getScheduler().runTaskTimer(this, userService, 2, 2);
         getServer().getScheduler().runTaskTimerAsynchronously(this, plotService, 20, 20);
     }
 
@@ -161,10 +172,10 @@ public class SimpleCraft extends JavaPlugin {
 
         String version = Bukkit.getServer().getClass().getPackage().getName().substring(23).toLowerCase();
 
-        for (SendAction sendAction : sendActions)
-            if (sendAction.support(version)) {
-                getLogger().info("Handling action-bar with nsm version " + sendAction.getClass().getSimpleName());
-                this.sendAction = sendAction;
+        for (SendAction loop : sendActions)
+            if (loop.support(version)) {
+                getLogger().info("Handling action-bar with nsm version " + loop.getClass().getSimpleName());
+                sendAction = loop;
                 return;
             }
     }

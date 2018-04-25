@@ -1,26 +1,50 @@
 package com.github.manolo8.simplecraft.modules.skill.data;
 
+import com.github.manolo8.simplecraft.cache.Cache;
 import com.github.manolo8.simplecraft.modules.skill.Skill;
-import com.github.manolo8.simplecraft.modules.skill.types.SkillDodgeDamage;
-import com.github.manolo8.simplecraft.modules.skill.types.SkillExtraDamage;
-import com.github.manolo8.simplecraft.modules.skill.types.SkillExtraLife;
+import com.github.manolo8.simplecraft.modules.skill.types.*;
 import com.github.manolo8.simplecraft.modules.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class SkillRepository {
 
-    private SkillDao skillDao;
-    private Random random;
+    public static SkillRepository instance;
+    public static List<Skill> types;
 
-    public SkillRepository(SkillDao skillDao, Random random) {
-        this.skillDao = skillDao;
-        this.random = random;
+    static {
+        types = new ArrayList<>();
+
+        types.add(new SkillDodgeDamage());
+        types.add(new SkillExtraDamage());
+        types.add(new SkillExtraLife());
+        types.add(new SkillFallProtection());
+        types.add(new SkillMagicAreaDamage());
+        types.add(new SkillMagicBigJump());
+        types.add(new SkillMagicArrowExplosive());
+        types.add(new SkillMagicLifeSteal());
     }
 
-    public void load(User user) {
+    private SkillDao skillDao;
+    private Cache<Skill> skillCache;
+
+    public SkillRepository(Cache<Skill> cache, SkillDao skillDao) {
+        this.skillDao = skillDao;
+        this.skillCache = cache;
+        instance = this;
+    }
+
+    public Skill create(User user, int type) {
+        Skill skill = fromDTO(skillDao.create(user, type));
+
+        user.getSkills().add(skill);
+        skill.addReference();
+
+        return skill;
+    }
+
+    public List<Skill> findUserSkills(User user) {
         List<Skill> skills = new ArrayList<>();
 
         List<SkillDTO> list = skillDao.findByUser(user);
@@ -28,33 +52,42 @@ public class SkillRepository {
         for (SkillDTO skill : list)
             skills.add(fromDTO(skill));
 
-        user.setSkills(skills);
-        user.cleanupSkills();
+        return skills;
     }
 
-    public void save(User user) {
-        skillDao.save(user.getSkills());
+    public void save(List<Skill> skills) {
+        skillDao.save(skills);
     }
 
     private Skill fromDTO(SkillDTO dto) {
-        Skill skill = newInstance(dto.getType());
+        Skill skill;
+
+        skill = skillCache.getIfMatch(dto.getId());
+
+        if (skill != null) return skill;
+
+        skill = newInstance(dto.getType());
 
         skill.setLevel(dto.getLevel());
         skill.setId(dto.getId());
+        skill.setNeedSave(false);
+
+        skillCache.add(skill);
 
         return skill;
     }
 
+    public void save(Skill skill) {
+        skillDao.save(skill);
+    }
+
     private Skill newInstance(int type) {
-        switch (type) {
-            case 0:
-                return new SkillDodgeDamage(random);
-            case 1:
-                return new SkillExtraDamage(random);
-            case 2:
-                return new SkillExtraLife(random);
-            default:
-                throw new RuntimeException();
+        for (Skill skill : types) {
+            if (skill.getType() == type) {
+                return skill.newInstance();
+            }
         }
+
+        return null;
     }
 }

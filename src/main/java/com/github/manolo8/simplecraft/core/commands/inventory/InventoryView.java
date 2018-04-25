@@ -115,7 +115,7 @@ public class InventoryView {
     }
 
 
-    private void update() {
+    public void update() {
         clear();
         user.playSound(Sound.ENTITY_PLAYER_BURP, 20, 20);
         View view = getCurrent();
@@ -130,7 +130,7 @@ public class InventoryView {
             inventory.setItem(index, action.getItemStack());
             action.setIndex(index);
             iv++;
-            if (iv == 45) break;
+            if (iv > 45) break;
         }
     }
 

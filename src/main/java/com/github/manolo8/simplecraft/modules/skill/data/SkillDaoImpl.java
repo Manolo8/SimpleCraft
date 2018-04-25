@@ -36,7 +36,6 @@ public class SkillDaoImpl implements SkillDao {
 
             ResultSet result = statement.executeQuery();
 
-
             while (result.next()) list.add(fromResult(result));
 
             statement.close();
@@ -49,35 +48,17 @@ public class SkillDaoImpl implements SkillDao {
     }
 
     @Override
-    public void save(Skill skill) {
-        if (skill.isNew() || !skill.isNeedSave()) return;
-
-        try {
-            PreparedStatement statement = builder.getConnection().prepareStatement(updateQuery);
-
-            statement.setInt(1, skill.getLevel());
-            statement.setInt(2, skill.getId());
-
-            statement.executeUpdate();
-
-            statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public SkillDTO create(User user, int type) {
         SkillDTO dto = new SkillDTO();
         dto.setType(type);
-        dto.setLevel(0);
+        dto.setLevel(1);
 
         try {
             PreparedStatement statement = builder.getConnection().prepareStatement(insertQuery);
 
             statement.setInt(1, user.getId());
             statement.setInt(2, type);
-            statement.setInt(3, 0);
+            statement.setInt(3, 1);
 
             statement.executeUpdate();
 
@@ -96,17 +77,35 @@ public class SkillDaoImpl implements SkillDao {
     }
 
     @Override
+    public void save(Skill skill) {
+        try {
+            PreparedStatement statement = builder.getConnection().prepareStatement(updateQuery);
+
+            statement.setInt(1, skill.getLevel());
+            statement.setInt(2, skill.getId());
+
+            statement.executeUpdate();
+
+            System.out.println(skill.getName() + " saved");
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void save(List<Skill> skills) {
+
         try {
             PreparedStatement statement = builder.getConnection().prepareStatement(updateQuery);
 
             for (Skill skill : skills) {
-                if (skill.isNew() || !skill.isNeedSave()) continue;
-
                 statement.setInt(1, skill.getLevel());
                 statement.setInt(2, skill.getId());
                 statement.executeUpdate();
 
+                System.out.println(skill.getName() + " saved");
             }
 
             statement.close();
@@ -118,6 +117,7 @@ public class SkillDaoImpl implements SkillDao {
     private SkillDTO fromResult(ResultSet result) throws SQLException {
         SkillDTO dto = new SkillDTO();
 
+        dto.setId(result.getInt("id"));
         dto.setType(result.getInt("type"));
         dto.setLevel(result.getInt("level"));
 

@@ -4,9 +4,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemActionImpl implements ItemAction {
 
-    private int index;
-    private ItemStack itemStack;
-    private Action action;
+    protected int index;
+    protected ItemStack itemStack;
+    protected Action action;
 
     public int getIndex() {
         return index;

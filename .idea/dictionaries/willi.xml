@@ -1,7 +1,12 @@
 <component name="ProjectDictionaryState">
   <dictionary name="willi">
     <words>
+      <w>buyable</w>
+      <w>cooldown</w>
+      <w>interactable</w>
       <w>owneds</w>
+      <w>tickable</w>
+      <w>tickables</w>
     </words>
   </dictionary>
 </component>

@@ -13,13 +13,13 @@ import com.github.manolo8.simplecraft.modules.portal.Portal;
 import com.github.manolo8.simplecraft.modules.portal.PortalService;
 import com.github.manolo8.simplecraft.modules.region.Region;
 import com.github.manolo8.simplecraft.modules.region.RegionService;
+import com.github.manolo8.simplecraft.modules.skill.SkillView;
 import com.github.manolo8.simplecraft.modules.user.User;
 import com.github.manolo8.simplecraft.modules.user.UserService;
 import com.github.manolo8.simplecraft.modules.user.UserView;
 import com.github.manolo8.simplecraft.modules.warp.Warp;
 import com.github.manolo8.simplecraft.modules.warp.WarpService;
 import com.github.manolo8.simplecraft.utils.RecursiveInformation;
-import com.github.manolo8.simplecraft.utils.location.SimpleArea;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -415,7 +415,7 @@ public class Commands {
             args = 2,
             usage = "§c/region create <name>")
     public void regionCreate(User user, String[] args) {
-        if (user.getPos1() == null || user.getPos2() == null) {
+        if (!user.isMarked()) {
             user.sendMessage("§aMarque as posições primeiro!");
             return;
         }
@@ -423,8 +423,7 @@ public class Commands {
         Region region = regionService.create(user, args[1]);
 
         if (region == null) {
-            user.sendMessage("§cUma região com esse nome já existe ou você não está em " +
-                    "um mundo protegido pelo sistema de região!");
+            user.sendMessage("§cUma região com esse nome já existe ou você não está em um mundo protegido pelo sistema de região!");
             return;
         }
 
@@ -436,7 +435,7 @@ public class Commands {
             args = 2,
             usage = "§c/region update <name>")
     public void regionUpdate(User user, String[] args) {
-        if (user.getPos1() == null || user.getPos2() == null) {
+        if (!user.isMarked()) {
             user.sendMessage("§aMarque as posições primeiro!");
             return;
         }
@@ -453,7 +452,7 @@ public class Commands {
             return;
         }
 
-        region.setArea(new SimpleArea(user.getPos1(), user.getPos2()));
+        region.setArea(user.asSimpleArea());
         user.sendMessage("§aRegião alterada com sucesso!");
     }
 
@@ -754,5 +753,14 @@ public class Commands {
 
         if (portal == null) user.sendMessage("§aNão foi possível criar o portal");
         else user.sendMessage("§aO portal foi criado com sucesso!");
+    }
+
+    @CommandMapping(command = "skill"
+            , subCommand = "any",
+            permission = "portal.create",
+            args = {0, 1},
+            usage = "§c/skill [user/]")
+    public void skills(User user, String[] args) {
+        user.createView(new SkillView(user));
     }
 }

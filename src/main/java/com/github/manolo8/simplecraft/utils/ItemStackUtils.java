@@ -31,10 +31,14 @@ public class ItemStackUtils {
     }
 
     public static ItemStack create(int material, String title, String lore) {
+        return create(Material.getMaterial(material), title, Arrays.asList(lore.split(",")));
+    }
+
+    public static ItemStack create(Material material, String title, List<String> lore) {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(title);
-        meta.setLore(Arrays.asList(lore.split(",")));
+        meta.setLore(lore);
         itemStack.setItemMeta(meta);
         return itemStack;
     }
@@ -47,5 +51,9 @@ public class ItemStackUtils {
         builder.setLength(builder.length() - 1);
 
         return builder.toString();
+    }
+
+    public static ItemStack create(Material material, String title, String[] info) {
+        return create(material, title, Arrays.asList(info));
     }
 }

@@ -6,48 +6,37 @@ import com.github.manolo8.simplecraft.modules.skill.tools.DamageResult;
 import com.github.manolo8.simplecraft.modules.skill.tools.ReceiveDamage;
 import com.github.manolo8.simplecraft.modules.user.User;
 import com.github.manolo8.simplecraft.utils.PotionUtils;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Random;
-
-public class SkillDodgeDamage extends Skill {
+public class SkillDodgeDamage extends Skill<Level> {
 
     private static Level[] levels;
-    private static Random random;
 
     static {
         levels = new Level[10];
 
-        levels[0] = new Beginner(1, 100);
-        levels[1] = new Beginner(3, 97);
-        levels[2] = new Beginner(6, 95);
-        levels[3] = new Beginner(10, 93);
-        levels[4] = new Beginner(15, 90);
-        levels[5] = new Intermediate(25, 88);
-        levels[6] = new Intermediate(27, 85);
-        levels[7] = new Intermediate(30, 83);
-        levels[8] = new Intermediate(35, 80);
-        levels[9] = new Intermediate(40, 75);
+        levels[0] = new Beginner(1, 12);
+        levels[1] = new Beginner(3, 11);
+        levels[2] = new Beginner(6, 10);
+        levels[3] = new Beginner(10, 9);
+        levels[4] = new Beginner(15, 8);
+        levels[5] = new Intermediate(25, 7);
+        levels[6] = new Intermediate(27, 6);
+        levels[7] = new Intermediate(30, 5);
+        levels[8] = new Intermediate(35, 4);
+        levels[9] = new Intermediate(40, 3);
     }
 
-    public SkillDodgeDamage(Random rnd) {
-        random = rnd;
-    }
-
-    @Override
-    public int getType() {
-        return 0;
+    public SkillDodgeDamage() {
+        super(levels, "Desvio de dano", 0, Material.WEB);
     }
 
     @Override
-    public Level getLevelHandler() {
-        return levels[level];
-    }
-
-    @Override
-    public boolean hasNextLevel() {
-        return levels.length > level;
+    public Skill newInstance() {
+        return new SkillDodgeDamage();
     }
 
     static class Beginner extends Level implements ReceiveDamage {
@@ -63,7 +52,11 @@ public class SkillDodgeDamage extends Skill {
 
         @Override
         public void onReceiveDamage(LivingEntity entity, User user, DamageResult damageResult) {
-            if (random.nextInt(chance) == 1) damageResult.setDamage(0);
+            if (random.nextInt(chance) != 1) return;
+
+            damageResult.setCancelled(true);
+
+            user.playSound(Sound.ITEM_SHIELD_BLOCK, 20, 20);
         }
     }
 

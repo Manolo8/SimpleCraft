@@ -5,8 +5,8 @@ import java.io.IOException;
 public class Test2 {
 
     public static void main(String[] args) {
-        for(int i = 0; i < 100; i++) {
-            System.out.println((int) (250 + Math.pow(i + 5, 1.75D)));
+        for (int i = 0; i < 210; i += 20) {
+            System.out.println(i % 30);
         }
     }
 
