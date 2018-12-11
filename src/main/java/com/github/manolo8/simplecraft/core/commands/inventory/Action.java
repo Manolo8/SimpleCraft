@@ -1,8 +1,17 @@
 package com.github.manolo8.simplecraft.core.commands.inventory;
 
-import com.github.manolo8.simplecraft.modules.user.User;
+import java.sql.SQLException;
 
 public interface Action {
 
-    void doAction(User user);
+    void click() throws SQLException;
+
+    interface Info extends Action {
+
+        default void click() {
+        }
+
+        void click(ClickInfo info);
+    }
+
 }

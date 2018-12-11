@@ -1,182 +1,339 @@
 package com.github.manolo8.simplecraft;
 
-import com.github.manolo8.simplecraft.cache.CacheManager;
-import com.github.manolo8.simplecraft.cache.impl.*;
-import com.github.manolo8.simplecraft.core.chat.Chat;
-import com.github.manolo8.simplecraft.core.commands.def.CommandController;
-import com.github.manolo8.simplecraft.core.commands.def.Commands;
-import com.github.manolo8.simplecraft.core.protection.ProtectionController;
+import com.github.manolo8.simplecraft.core.commands.line.CommandService;
+import com.github.manolo8.simplecraft.core.placeholder.PlaceHolderService;
+import com.github.manolo8.simplecraft.module.tag.TagList;
+import com.github.manolo8.simplecraft.core.world.WorldInfoRepository;
 import com.github.manolo8.simplecraft.core.world.WorldService;
-import com.github.manolo8.simplecraft.core.world.data.WorldInfoDaoImpl;
-import com.github.manolo8.simplecraft.data.builder.ConnectionBuilder;
-import com.github.manolo8.simplecraft.data.dao.*;
+import com.github.manolo8.simplecraft.core.data.cache.CacheService;
+import com.github.manolo8.simplecraft.core.data.connection.Database;
+import com.github.manolo8.simplecraft.core.data.connection.DatabaseBuilder;
 import com.github.manolo8.simplecraft.listener.MainListener;
-import com.github.manolo8.simplecraft.modules.action.*;
-import com.github.manolo8.simplecraft.modules.group.GroupService;
-import com.github.manolo8.simplecraft.modules.group.data.GroupDaoImpl;
-import com.github.manolo8.simplecraft.modules.group.data.GroupRepository;
-import com.github.manolo8.simplecraft.modules.mob.MobService;
-import com.github.manolo8.simplecraft.modules.plot.PlotService;
-import com.github.manolo8.simplecraft.modules.plot.data.PlotDaoImpl;
-import com.github.manolo8.simplecraft.modules.plot.data.PlotRepository;
-import com.github.manolo8.simplecraft.modules.portal.PortalService;
-import com.github.manolo8.simplecraft.modules.portal.data.PortalDao;
-import com.github.manolo8.simplecraft.modules.portal.data.PortalDaoImpl;
-import com.github.manolo8.simplecraft.modules.region.RegionService;
-import com.github.manolo8.simplecraft.modules.region.data.RegionDaoImpl;
-import com.github.manolo8.simplecraft.modules.region.data.RegionRepository;
-import com.github.manolo8.simplecraft.modules.shop.ShopController;
-import com.github.manolo8.simplecraft.modules.shop.ShopService;
-import com.github.manolo8.simplecraft.modules.shop.data.ShopDao;
-import com.github.manolo8.simplecraft.modules.shop.data.ShopDaoImpl;
-import com.github.manolo8.simplecraft.modules.shop.data.ShopRepository;
-import com.github.manolo8.simplecraft.modules.skill.data.SkillDao;
-import com.github.manolo8.simplecraft.modules.skill.data.SkillDaoImpl;
-import com.github.manolo8.simplecraft.modules.skill.data.SkillRepository;
-import com.github.manolo8.simplecraft.modules.user.UserService;
-import com.github.manolo8.simplecraft.modules.user.data.UserDaoImpl;
-import com.github.manolo8.simplecraft.modules.user.data.UserRepository;
-import com.github.manolo8.simplecraft.modules.warp.WarpService;
-import com.github.manolo8.simplecraft.modules.warp.data.WarpDao;
-import com.github.manolo8.simplecraft.modules.warp.data.WarpDaoImpl;
+import com.github.manolo8.simplecraft.module.board.BoardItemRepository;
+import com.github.manolo8.simplecraft.module.board.BoardService;
+import com.github.manolo8.simplecraft.module.clan.ClanRepository;
+import com.github.manolo8.simplecraft.module.clan.ClanService;
+import com.github.manolo8.simplecraft.module.clan.clanarea.ClanAreaService;
+import com.github.manolo8.simplecraft.module.group.GroupRepository;
+import com.github.manolo8.simplecraft.module.group.GroupService;
+import com.github.manolo8.simplecraft.module.hologram.HologramRepository;
+import com.github.manolo8.simplecraft.module.hologram.HologramService;
+import com.github.manolo8.simplecraft.module.kit.KitRepository;
+import com.github.manolo8.simplecraft.module.kit.KitService;
+import com.github.manolo8.simplecraft.module.market.MarketItemRepository;
+import com.github.manolo8.simplecraft.module.market.MarketService;
+import com.github.manolo8.simplecraft.module.mine.MineRepository;
+import com.github.manolo8.simplecraft.module.mine.MineService;
+import com.github.manolo8.simplecraft.module.mobarea.MobAreaRepository;
+import com.github.manolo8.simplecraft.module.mobarea.MobAreaService;
+import com.github.manolo8.simplecraft.module.money.MoneyRepository;
+import com.github.manolo8.simplecraft.module.money.MoneyService;
+import com.github.manolo8.simplecraft.module.plot.PlotRepository;
+import com.github.manolo8.simplecraft.module.plot.PlotService;
+import com.github.manolo8.simplecraft.module.portal.PortalRepository;
+import com.github.manolo8.simplecraft.module.portal.PortalService;
+import com.github.manolo8.simplecraft.module.rank.RankRepository;
+import com.github.manolo8.simplecraft.module.rank.RankService;
+import com.github.manolo8.simplecraft.module.region.RegionRepository;
+import com.github.manolo8.simplecraft.module.region.RegionService;
+import com.github.manolo8.simplecraft.module.shop.ShopRepository;
+import com.github.manolo8.simplecraft.module.shop.ShopService;
+import com.github.manolo8.simplecraft.module.skill.SkillRepository;
+import com.github.manolo8.simplecraft.module.skill.SkillService;
+import com.github.manolo8.simplecraft.module.skin.SkinRepository;
+import com.github.manolo8.simplecraft.module.skin.SkinService;
+import com.github.manolo8.simplecraft.module.user.UserRepository;
+import com.github.manolo8.simplecraft.module.user.UserService;
+import com.github.manolo8.simplecraft.module.user.identity.IdentityRepository;
+import com.github.manolo8.simplecraft.module.warp.WarpRepository;
+import com.github.manolo8.simplecraft.module.warp.WarpService;
+import com.github.manolo8.simplecraft.tools.item.ItemRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class SimpleCraft extends JavaPlugin {
 
     public static SimpleCraft instance;
-    public static SendAction sendAction;
-    private ConnectionBuilder builder;
-    private CacheManager cacheManager;
-    private UserService userService;
+    private CacheService cacheService;
+    private DatabaseBuilder databaseBuilder;
+    private MainListener mainListener;
+
+    private BoardItemRepository boardItemRepository;
+    private WorldInfoRepository worldInfoRepository;
+    private IdentityRepository identityRepository;
+    private GroupRepository groupRepository;
+    private MoneyRepository moneyRepository;
+    private UserRepository userRepository;
+    private RegionRepository regionRepository;
+    private ItemRepository itemRepository;
+    private ShopRepository shopRepository;
+    private PlotRepository plotRepository;
+    private MineRepository mineRepository;
+    private PortalRepository portalRepository;
+    private RankRepository rankRepository;
+    private MobAreaRepository mobAreaRepository;
+    private ClanRepository clanRepository;
+    private SkillRepository skillRepository;
+    private KitRepository kitRepository;
+    //    private MachineRepository machineRepository;
+    private WarpRepository warpRepository;
+    private SkinRepository skinRepository;
+    private MarketItemRepository marketItemRepository;
+    private HologramRepository hologramRepository;
+
+    private PlaceHolderService placeHolderService;
+    private BoardService boardService;
     private GroupService groupService;
-    private PlotService plotService;
+    private MoneyService moneyService;
+    private UserService userService;
+    private WorldService worldService;
     private RegionService regionService;
-    private WarpService warpService;
-    private MobService mobService;
+    private ShopService shopService;
+    private PlotService plotService;
+    private MineService mineService;
     private PortalService portalService;
+    private RankService rankService;
+    private MobAreaService mobAreaService;
+    private ClanService clanService;
+    private ClanAreaService clanAreaService;
+    private SkillService skillService;
+    private KitService kitService;
+    private CommandService commandService;
+    //    private MachineService machineService;
+    private WarpService warpService;
+    private SkinService skinService;
+    private MarketService marketService;
+    private HologramService hologramService;
+
+    private TagList tagList;
 
     @Override
     public void onEnable() {
+        long time = System.nanoTime();
+
+        databaseBuilder = new DatabaseBuilder();
+        Database database = databaseBuilder.build(this).getDatabase();
+        cacheService = new CacheService();
+
         instance = this;
 
-        setupSendAction();
+        tagList = new TagList();
 
-        builder = new ConnectionBuilder();
-        builder.build(this);
-        cacheManager = new CacheManager();
+        try {
+            //REPOSITORIES
 
-        WorldInfoDao worldInfoDao = new WorldInfoDaoImpl(builder);
-        WorldService worldService = new WorldService(worldInfoDao);
+            skinRepository = new SkinRepository(database);
 
-        PlotDao plotDao = new PlotDaoImpl(builder);
-        PlotCache plotCache = new PlotCache(plotDao);
-        PlotRepository plotRepository = new PlotRepository(plotDao, plotCache);
-        plotService = new PlotService(worldService, plotRepository);
-        cacheManager.addCache(plotCache);
+            boardItemRepository = new BoardItemRepository(database);
 
-        GroupDao groupDao = new GroupDaoImpl(builder);
-        GroupCache groupCache = new GroupCache(groupDao);
-        GroupRepository groupRepository = new GroupRepository(groupCache, groupDao);
-        groupService = new GroupService(groupRepository);
-        cacheManager.addCache(groupCache);
+            identityRepository = new IdentityRepository(database, skinRepository);
 
-        SkillDao skillDao = new SkillDaoImpl(builder);
-        SkillCache skillCache = new SkillCache(skillDao);
-        SkillRepository skillRepository = new SkillRepository(skillCache, skillDao);
-        cacheManager.addCache(skillCache);
+            groupRepository = new GroupRepository(database, identityRepository);
 
-        UserDao userDao = new UserDaoImpl(builder);
-        UserCache userCache = new UserCache(userDao);
-        UserRepository userRepository = new UserRepository(userCache, userDao, groupRepository, plotRepository, skillRepository);
-        userService = new UserService(worldService, userRepository);
-        cacheManager.addCache(userCache);
+            worldInfoRepository = new WorldInfoRepository(database);
 
-        mobService = new MobService(new Random(), userService);
+            moneyRepository = new MoneyRepository(database,
+                    identityRepository);
 
-        RegionDao regionDao = new RegionDaoImpl(builder);
-        RegionCache regionCache = new RegionCache(regionDao);
-        RegionRepository regionRepository = new RegionRepository(regionCache, regionDao);
-        regionService = new RegionService(regionRepository, worldService, mobService);
-        cacheManager.addCache(regionCache);
+            regionRepository = new RegionRepository(database,
+                    worldInfoRepository);
 
-        worldService.init();
+            itemRepository = new ItemRepository(database);
 
-        ShopDao shopDao = new ShopDaoImpl(builder);
-        ShopCache shopCache = new ShopCache(shopDao);
-        ShopRepository shopRepository = new ShopRepository(userRepository, shopDao, shopCache);
-        ShopService shopService = new ShopService(shopRepository);
-        ShopController shopController = new ShopController(shopService);
-        cacheManager.addCache(shopCache);
+            shopRepository = new ShopRepository(database,
+                    worldInfoRepository,
+                    moneyRepository,
+                    itemRepository);
 
-        WarpDao warpDao = new WarpDaoImpl(builder);
-        warpService = new WarpService(warpDao);
+            plotRepository = new PlotRepository(database,
+                    worldInfoRepository,
+                    identityRepository);
 
-        PortalDao portalDao = new PortalDaoImpl(builder);
-        PortalService portalService = new PortalService(portalDao);
+            rankRepository = new RankRepository(database);
 
-        ProtectionController protectionController = new ProtectionController(userService, worldService);
+            clanRepository = new ClanRepository(database,
+                    identityRepository,
+                    worldInfoRepository);
 
-        Chat chat = new Chat(userService);
+            mineRepository = new MineRepository(database,
+                    worldInfoRepository,
+                    itemRepository);
 
-        Commands commands = new Commands(userService,
-                groupService,
-                regionService,
-                plotService,
-                worldService,
-                warpService,
-                portalService);
+            portalRepository = new PortalRepository(database,
+                    worldInfoRepository);
 
-        CommandController commandController = new CommandController(userService, commands);
+            mobAreaRepository = new MobAreaRepository(database,
+                    itemRepository,
+                    worldInfoRepository);
 
-        getCommand("money").setExecutor(commandController);
-        getCommand("group").setExecutor(commandController);
-        getCommand("pay").setExecutor(commandController);
-        getCommand("region").setExecutor(commandController);
-        getCommand("plot").setExecutor(commandController);
-        getCommand("world").setExecutor(commandController);
-        getCommand("status").setExecutor(commandController);
-        getCommand("warp").setExecutor(commandController);
-        getCommand("warpadmin").setExecutor(commandController);
-        getCommand("portal").setExecutor(commandController);
-        getCommand("skill").setExecutor(commandController);
+            skillRepository = new SkillRepository(database,
+                    identityRepository);
 
-        MainListener mainListener = new MainListener(userService, protectionController, shopController, mobService, chat, portalService);
+            kitRepository = new KitRepository(database,
+                    identityRepository,
+                    itemRepository);
 
-        getServer().getPluginManager().registerEvents(mainListener, this);
-        getServer().getScheduler().runTaskTimer(this, cacheManager, 100, 100);
-        getServer().getScheduler().runTaskTimer(this, mobService, 200, 200);
-        getServer().getScheduler().runTaskTimer(this, userService, 2, 2);
-        getServer().getScheduler().runTaskTimerAsynchronously(this, plotService, 20, 20);
+            userRepository = new UserRepository(database,
+                    identityRepository,
+                    moneyRepository,
+                    plotRepository.getPlotUserRepository(),
+                    kitRepository.getKitUserRepository(),
+                    rankRepository,
+                    clanRepository.getClanUserRepository(),
+                    groupRepository.getGroupUserRepository(),
+                    skillRepository.getSkillUserRepository());
+
+//            machineRepository = new MachineRepository(database,
+//                    worldInfoRepository, null, null);
+
+            warpRepository = new WarpRepository(database,
+                    worldInfoRepository);
+
+            marketItemRepository = new MarketItemRepository(database,
+                    itemRepository,
+                    moneyRepository);
+
+            hologramRepository = new HologramRepository(database, worldInfoRepository);
+            //REPOSITORIES
+
+            boardItemRepository.init();
+            skinRepository.init();
+            groupRepository.init();
+            rankRepository.init();
+            userRepository.init();
+            identityRepository.init();
+            moneyRepository.init();
+            worldInfoRepository.init();
+            regionRepository.init();
+            itemRepository.init();
+            shopRepository.init();
+            plotRepository.init();
+            mineRepository.init();
+            portalRepository.init();
+            mobAreaRepository.init();
+            clanRepository.init();
+            skillRepository.init();
+            kitRepository.init();
+//            machineRepository.init();
+            warpRepository.init();
+            marketItemRepository.init();
+            hologramRepository.init();
+
+            //SERVICES
+            placeHolderService = new PlaceHolderService();
+            boardService = new BoardService(boardItemRepository);
+            skinService = new SkinService(skinRepository);
+            groupService = new GroupService(groupRepository);
+            moneyService = new MoneyService(moneyRepository);
+            worldService = new WorldService(worldInfoRepository);
+            userService = new UserService(worldService, userRepository, skinService, boardService);
+            regionService = new RegionService(regionRepository);
+            shopService = new ShopService(shopRepository);
+            plotService = new PlotService(worldService, plotRepository);
+            mineService = new MineService(mineRepository);
+            portalService = new PortalService(portalRepository);
+            rankService = new RankService(rankRepository);
+            mobAreaService = new MobAreaService(mobAreaRepository);
+            clanService = new ClanService(clanRepository, userService.getChat());
+            clanAreaService = new ClanAreaService(clanRepository.getClanAreaRepository());
+            skillService = new SkillService(skillRepository);
+            kitService = new KitService(kitRepository);
+//            machineService = new MachineService(machineRepository);
+            commandService = new CommandService(userService, worldService);
+            warpService = new WarpService(warpRepository);
+            marketService = new MarketService(marketItemRepository);
+            hologramService = new HologramService(hologramRepository);
+            //SERVICES
+
+            worldService.register(regionService);
+            worldService.register(shopService);
+            worldService.register(plotService);
+            worldService.register(mineService);
+            worldService.register(portalService);
+            worldService.register(mobAreaService);
+            worldService.register(clanAreaService);
+//            worldService.register(machineService);
+            worldService.register(hologramService);
+
+            commandService.register(boardService);
+            commandService.register(mineService);
+            commandService.register(moneyService);
+            commandService.register(mobAreaService);
+            commandService.register(kitService);
+            commandService.register(groupService);
+            commandService.register(plotService);
+            commandService.register(userService);
+            commandService.register(clanService);
+            commandService.register(rankService);
+            commandService.register(portalService);
+            commandService.register(clanAreaService);
+            commandService.register(regionService);
+            commandService.register(skillService);
+//            commandService.register(machineService);
+            commandService.register(warpService);
+            commandService.register(cacheService);
+            commandService.register(skinService);
+            commandService.register(marketService);
+            commandService.register(worldService);
+            commandService.register(hologramService);
+
+            placeHolderService.register(userService);
+            placeHolderService.register(moneyService);
+            placeHolderService.register(clanService);
+            placeHolderService.register(groupService);
+
+            boardService.init();
+
+            skinService.init();
+            worldService.init();
+
+            rankService.init();
+            userService.init();
+            kitService.init();
+            warpService.init();
+
+            commandService.init();
+
+            getServer().getScheduler().runTaskTimerAsynchronously(this, cacheService, 1, 1);
+            getServer().getScheduler().runTaskTimerAsynchronously(this, () -> moneyService.updateMoneyTop(), 0, 20 * 60 * 5);
+
+            getServer().getScheduler().runTaskTimer(this, worldService, 1, 1);
+            getServer().getScheduler().runTaskTimer(this, () -> userService.runSync(), 1, 1);
+            getServer().getScheduler().runTaskTimerAsynchronously(this, () -> userService.runAsync(), 0, 1);
+
+            getServer().getScheduler().runTaskLater(this, this::onFinishLoad, 0);
+
+            mainListener = new MainListener(worldService, userService);
+
+            getServer().getPluginManager().registerEvents(mainListener, this);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.shutdown();
+        }
+
+        System.out.println("TOOK " + (System.nanoTime() - time) + " nanoseconds");
+    }
+
+    public void onFinishLoad() {
+        try {
+            worldService.postInit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onDisable() {
-        userService.saveAll();
-        cacheManager.saveAll();
-        warpService.saveAll();
-        builder.closeConnection();
-    }
-
-    private void setupSendAction() {
-        List<SendAction> sendActions = new ArrayList<>();
-        sendActions.add(new NMS1_12());
-        sendActions.add(new NMS1_9());
-        sendActions.add(new NMS1_8());
-        sendActions.add(new NMS1_X());
-
-        String version = Bukkit.getServer().getClass().getPackage().getName().substring(23).toLowerCase();
-
-        for (SendAction loop : sendActions)
-            if (loop.support(version)) {
-                getLogger().info("Handling action-bar with nsm version " + loop.getClass().getSimpleName());
-                sendAction = loop;
-                return;
-            }
+        getServer().getScheduler().cancelTasks(this);
+        tagList.removeAll();
+        userService.stop();
+        skinService.stop();
+        worldService.stop();
+        cacheService.stop();
+        databaseBuilder.closeConnection();
     }
 }

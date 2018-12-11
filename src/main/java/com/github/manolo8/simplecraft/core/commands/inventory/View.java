@@ -1,33 +1,21 @@
 package com.github.manolo8.simplecraft.core.commands.inventory;
 
-import java.util.Collection;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface View {
 
-    InventoryView getInventoryView();
+    InventoryView getMain();
 
-    void setInventoryView(InventoryView view);
+    void setMain(InventoryView view);
 
-    int getPage();
-
-    boolean nextPage();
-
-    boolean previousPage();
+    int size();
 
     String getTitle();
 
-    List<? extends ItemAction> getActions();
+    Handler createHandler();
 
-    List<? extends ItemAction> getPagination();
+    void close();
 
-    /**
-     * Chamada quando a view não é mais usada
-     */
-    void addReference();
-
-    /**
-     * Chamado quando a view é removida
-     */
-    void removeReference();
+    void tick();
 }

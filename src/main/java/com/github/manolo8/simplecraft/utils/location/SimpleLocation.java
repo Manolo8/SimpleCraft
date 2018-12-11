@@ -1,26 +1,28 @@
 package com.github.manolo8.simplecraft.utils.location;
 
-import org.bukkit.Bukkit;
+import com.github.manolo8.simplecraft.core.world.WorldInfo;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import java.util.UUID;
+import java.nio.ByteBuffer;
 
 public class SimpleLocation implements Cloneable {
 
-    private int x;
-    private int y;
-    private int z;
-    private float yaw;
-    private float pitch;
+    protected int x;
+    protected int y;
+    protected int z;
+    protected float yaw;
+    protected float pitch;
 
-    public SimpleLocation(int x, int y, int z, float yaw, float pitch) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.yaw = yaw;
-        this.pitch = pitch;
+    public SimpleLocation(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+        this.x = buffer.getInt();
+        this.y = buffer.getInt();
+        this.z = buffer.getInt();
+        this.yaw = buffer.getFloat();
+        this.pitch = buffer.getFloat();
     }
 
     public SimpleLocation(int x, int y, int z) {
@@ -35,15 +37,16 @@ public class SimpleLocation implements Cloneable {
         this.x = (int) location.getX();
         this.y = (int) location.getY();
         this.z = (int) location.getZ();
+        this.yaw = location.getYaw();
+        this.pitch = location.getPitch();
     }
 
-    public static SimpleLocation fromString(String string) {
-        try {
-            String[] pos = string.split(" ");
-            return new SimpleLocation(Integer.valueOf(pos[0]), Integer.valueOf(pos[1]), Integer.valueOf(pos[2]));
-        } catch (Exception e) {
-            return null;
-        }
+    public SimpleLocation(int x, int y, int z, int yaw, int pitch) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
     }
 
     public static SimpleLocation mathMax(SimpleLocation one, SimpleLocation two) {
@@ -58,29 +61,51 @@ public class SimpleLocation implements Cloneable {
                 Math.min(one.z, two.z));
     }
 
+    //======================================================
+    //====================ENCAPSULATION=====================
+    //======================================================
     public int getX() {
         return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
     }
 
     public int getY() {
         return y;
     }
 
+    public void setY(int y) {
+        this.y = y;
+    }
+
     public int getZ() {
         return z;
+    }
+
+    public void setZ(int z) {
+        this.z = z;
     }
 
     public float getYaw() {
         return yaw;
     }
 
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
     public float getPitch() {
         return pitch;
     }
 
-    public Block getBlock(UUID world) {
-        return getBlock(Bukkit.getWorld(world));
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
     }
+    //======================================================
+    //====================ENCAPSULATION=====================
+    //======================================================
 
     public Block getBlock(World world) {
         return world.getBlockAt(x, y, z);
@@ -94,34 +119,27 @@ public class SimpleLocation implements Cloneable {
         return new SimpleLocation(this.x + x, this.y, this.z + z);
     }
 
-    public boolean isInArea(int x, int y, int z, int s) {
-        return (y >= this.y - s && y <= this.y + s)
-                && (z >= this.z - s && z <= this.z + s)
-                && (x >= this.x - s && x <= this.x + s);
-    }
-
-    @Override
-    public String toString() {
-        return x + " " + y + " " + z;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        SimpleLocation location = (SimpleLocation) object;
-        return x == location.x &&
-                y == location.y &&
-                z == location.z;
-    }
-
     public SimpleLocation add(SimpleLocation location) {
         return add(location.x, location.y, location.z);
     }
 
-    public Location getLocation(World world) {
+    public Location getOf(World world) {
         return new Location(world, x, y, z, yaw, pitch);
     }
 
+    public Block getBlock(WorldInfo worldInfo) {
+        return getBlock(worldInfo.getWorld());
+    }
 
+    public byte[] toBytes() {
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * 3 + Float.BYTES * 2);
+
+        buffer.putInt(x);
+        buffer.putInt(y);
+        buffer.putInt(z);
+        buffer.putFloat(yaw);
+        buffer.putFloat(pitch);
+
+        return buffer.array();
+    }
 }

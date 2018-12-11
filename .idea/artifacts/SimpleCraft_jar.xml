@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact build-on-make="true" name="SimpleCraft:jar">
-    <output-path>D:/Servidor/1.8.9/plugins</output-path>
+    <output-path>C:/Servidor/1.8.9/plugins</output-path>
     <root id="root">
       <element id="archive" name="SimpleCraft.jar">
         <element id="directory" name="META-INF">

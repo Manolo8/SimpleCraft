@@ -1,27 +1,6 @@
+api-version: 1.13
 author: Manolo8
+load: STARTUP
 main: com.github.manolo8.simplecraft.SimpleCraft
 name: SimpleCraft
 version: 1.0
-commands:
-  money:
-    usage: test
-  pay:
-    usage: test
-  group:
-    usage: test
-  region:
-    usage: test
-  plot:
-    usage: test
-  world:
-    usage: test
-  status:
-    usage: test
-  warp:
-    usage: test
-  warpadmin:
-    usage: test
-  portal:
-    usage: test
-  skill:
-    usage: test

@@ -2,13 +2,20 @@ package com.github.manolo8.simplecraft.core.commands.inventory;
 
 import org.bukkit.inventory.ItemStack;
 
-public interface ItemAction {
+public abstract class ItemAction {
 
-    int getIndex();
+    public boolean state;
 
-    void setIndex(int index);
+    public abstract int index();
 
-    ItemStack getItemStack();
+    public abstract ItemAction setIndex(int index);
 
-    Action getAction();
+    public ItemAction setIndex(int y, int x) {
+        setIndex(((--y * 9) + --x));
+        return this;
+    }
+
+    public abstract  ItemStack getItemStack();
+
+    public abstract Action getAction();
 }

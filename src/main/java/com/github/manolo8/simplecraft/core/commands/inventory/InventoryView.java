@@ -1,170 +1,148 @@
 package com.github.manolo8.simplecraft.core.commands.inventory;
 
-import com.github.manolo8.simplecraft.modules.user.User;
-import com.github.manolo8.simplecraft.utils.ItemStackUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.inventory.Inventory;
+import com.github.manolo8.simplecraft.module.user.User;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryView {
 
-    private User user;
-    private Inventory inventory;
-    private List<ItemAction> temp;
-    private List<ItemAction> pagination;
+    private final User user;
+    private final List<View> views;
+    public boolean opening;
 
-    private List<View> views;
-    private int current;
+    private View current;
+    private Handler handler;
 
-
-    public InventoryView() {
-        this.pagination = new ArrayList<>();
+    public InventoryView(User user) {
         this.views = new ArrayList<>();
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
         this.user = user;
     }
 
-    public void nextPage() {
-        if (getCurrent().nextPage()) {
-            update();
-            return;
-        }
-        user.playSound(Sound.BLOCK_ANVIL_LAND, 20, 20);
+    //======================================================
+    //=====================ENCAPSULATION====================
+    //======================================================
+    public User user() {
+        return user;
     }
 
-    public void previousPage() {
-        if (getCurrent().previousPage()) {
-            update();
-            return;
-        }
-        user.playSound(Sound.BLOCK_ANVIL_LAND, 20, 20);
+    public Handler getHandler() {
+        return handler;
     }
+
+    public List<View> getViews() {
+        return views;
+    }
+    //======================================================
+    //=====================ENCAPSULATION====================
+    //======================================================
 
     public void open() {
-        inventory = Bukkit.createInventory(null, 54, "§aMenu - §bSimpleCraft");
+        open(null);
+    }
 
-        user.getBase().openInventory(inventory);
+    public void open(Handler restore) {
+
+        handler = restore == null ? current.createHandler() : restore;
+        handler = current.createHandler();
+
+        handler.prepare(this, current);
+
+
+        opening = true;
+        handler.open();
+        opening = false;
+
+        updateAll();
+
     }
 
     public void close(boolean force) {
-        for (View view : views) view.removeReference();
+        for (View view : views) {
+            view.close();
+        }
 
-        if (force) user.getBase().getOpenInventory().close();
+        if (force) {
+            user.base().getOpenInventory().close();
+        }
     }
 
-    public void addView(View view) {
-        view.setInventoryView(this);
+    public void add(View view) {
+
+        //Checa quantas views já estão aberta, se for > 100, então fecha
+        //O jogador deve esta tentando testar o sistema
+        if (views.size() > 100) {
+            close(true);
+            user.sendAction("§cO seu histórico está muito grande :0");
+            return;
+        }
+
+        view.setMain(this);
+
         this.views.add(view);
-        view.addReference();
-        current = this.views.size() - 1;
-        pagination();
-        update();
+
+        current = views.get(this.views.size() - 1);
+
+        open();
     }
 
-    private View getCurrent() {
-        return views.get(current);
+    public void back() {
+        back(null);
     }
 
     /**
      * Volta para o último view
      * Caso seja o último view, fecha o inventário
      */
-    public void back() {
+    public void back(Handler restore) {
         int size = views.size();
 
         if (size == 1) {
-            getUser().getBase().closeInventory();
+            user().base().closeInventory();
+            //A referência será removida pelo evento InventoryCloseEvent
             return;
         }
 
-        //A view é removida, removemos a referencia
-        getCurrent().removeReference();
+        current.close();
 
-        this.views = views.subList(0, size - 1);
+        this.views.remove(size - 1);
 
-        current = size - 2;
-        pagination();
-        update();
+        current = views.get(size - 2);
+
+        open(restore);
     }
 
-    private void pagination() {
-        clearPagination();
+    public void backAndAdd(View view) {
+        int size = views.size();
 
-        pagination.addAll(getCurrent().getPagination());
-
-        if (views.size() > 1) {
-            ItemActionImpl back = new ItemActionImpl();
-            back.setItemStack(ItemStackUtils.create(Material.COMPASS, "§cVOLTAR"));
-            back.setIndex(0);
-            back.setAction(user -> back());
-            pagination.add(back);
+        if (size != 1) {
+            current.close();
+            this.views.remove(size - 1);
+            current = views.get(size - 2);
         }
 
-        for (ItemAction action : pagination)
-            inventory.setItem(45 + action.getIndex(), action.getItemStack());
+        add(view);
     }
-
 
     public void update() {
-        clear();
-        user.playSound(Sound.ENTITY_PLAYER_BURP, 20, 20);
-        View view = getCurrent();
-        temp = (List<ItemAction>) view.getActions();
-
-        int iv = 0;
-        for (int i = (45 * (view.getPage() - 1)); i < temp.size(); i++) {
-            ItemAction action = temp.get(i);
-
-            int index = (action.getIndex() == -1 ? i : action.getIndex());
-
-            inventory.setItem(index, action.getItemStack());
-            action.setIndex(index);
-            iv++;
-            if (iv > 45) break;
-        }
+        handler.update(true, false);
     }
 
-    public void handleClick(int index) {
-        if (index > 44) {
-            index = index % 45;
-            for (ItemAction action : pagination)
-                if (action.getIndex() == index) {
-                    action.getAction().doAction(user);
-                    break;
-                }
-            return;
-        }
-
-
-        index *= getCurrent().getPage();
-
-        //Se não for, pega o valor e executa a ação
-        for (ItemAction action : temp)
-            if (action.getIndex() == index)
-                if (action.getAction() != null) {
-                    action.getAction().doAction(user);
-                    break;
-                }
+    public void updatePagination() {
+        handler.update(false, true);
     }
 
-    private void clear() {
-        for (int i = 0; i < 45; i++)
-            inventory.setItem(i, null);
+    public void updateAll() {
+        handler.update(true, true);
     }
 
-    private void clearPagination() {
-        this.pagination.clear();
-        for (int i = 45; i < 54; i++)
-            inventory.setItem(i, null);
+
+    public void handleClick(int index, ItemStack cursor, boolean left) {
+        handler.click(index, cursor, left);
+    }
+
+    public void tick() {
+        current.tick();
     }
 }

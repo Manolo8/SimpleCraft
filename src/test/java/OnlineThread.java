@@ -4,14 +4,17 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class OnlineThread extends Thread {
 
     private final String[] data;
-    public int current = 25500;
+    public int current = 25550;
     public int index;
-    private InetSocketAddress address;
     public boolean locked;
+    private InetSocketAddress address;
 
     public OnlineThread(InetSocketAddress address, int index) {
         this.address = new InetSocketAddress(address.getAddress(), current);
@@ -41,7 +44,7 @@ public class OnlineThread extends Thread {
                 dos.write(0xFE);
                 ping = System.currentTimeMillis() - ping;
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(dis, "iso-8859-1"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(dis, StandardCharsets.ISO_8859_1));
 
                 StringBuilder sb = new StringBuilder();
                 String line;
@@ -56,10 +59,14 @@ public class OnlineThread extends Thread {
                 data[1] = splited[splited.length - 2];
                 data[2] = String.valueOf(ping);
 
+                System.out.println(Arrays.toString(splited));
+
                 locked = true;
 
-                sleep(5000);
+                sleep(250);
+                socket.close();
             } catch (Exception e) {
+                if (!(e instanceof SocketTimeoutException)) e.printStackTrace();
                 if (locked) continue;
                 address = new InetSocketAddress(address.getAddress(), current++);
             }
